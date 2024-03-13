@@ -58,7 +58,7 @@ async function getUserByEmail(email: string) {
   }
 }
 
-export async function getTodosByUser(email: string) {
+export async function getTodosByUser(email: string, keyword: string) {
   try {
     const q = query(
       collection(db, "playable-factory-entries"),
@@ -70,10 +70,13 @@ export async function getTodosByUser(email: string) {
       console.log("No matching documents.");
       return [];
     } else {
-      const dataList: any[] = [];
+      let dataList: any[] = [];
       querySnapshot.forEach((doc) => {
         dataList.push({ ...doc.data(), id: doc.id });
       });
+      dataList = dataList.filter((e) =>
+        e.content.toLowerCase().includes(keyword?.toLowerCase())
+      );
       return dataList;
     }
   } catch (error) {

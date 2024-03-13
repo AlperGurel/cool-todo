@@ -15,13 +15,18 @@ import {
   doc,
 } from "firebase/firestore";
 
-export async function addNewTodo(content: string) {
+export async function addNewTodo(
+  content: string,
+  tags: string[],
+  user: string
+) {
   const docRef = await addDoc(collection(db, "playable-factory-entries"), {
-    user: "grl.alper@gmail.com",
+    user: user,
     is_completed: false,
     content: content,
     attachment_type: "none",
     attachment_url: "",
+    tags: tags,
   });
   revalidatePath("/");
   console.log("Document written with ID: ", docRef.id);

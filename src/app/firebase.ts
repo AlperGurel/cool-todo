@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBAyyy7aFjwkEBdkMDOyWa9L4jwj1Aildw",
+  apiKey: process.env.FIREBASE_KEY,
   authDomain: "glov-case-97a55.firebaseapp.com",
   projectId: "glov-case-97a55",
   storageBucket: "glov-case-97a55.appspot.com",

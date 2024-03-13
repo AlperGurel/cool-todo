@@ -1,44 +1,38 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { initializeApp } from "firebase/app";
-import { getFirestore, addDoc, collection } from "firebase/firestore";
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyBAyyy7aFjwkEBdkMDOyWa9L4jwj1Aildw",
-//   authDomain: "glov-case-97a55.firebaseapp.com",
-//   projectId: "glov-case-97a55",
-//   storageBucket: "glov-case-97a55.appspot.com",
-//   messagingSenderId: "473371872077",
-//   appId: "1:473371872077:web:454d37e6f5669eac904504",
-// };
-
-// const app = initializeApp(firebaseConfig);
-// const db = getFirestore(app);
+import { useFormState, useFormStatus } from "react-dom";
 
 type AddState = "none" | "add";
 
-// export async function addNewTodo(content: string) {
-//   const docRef = await addDoc(collection(db, "playable-factory-entries"), {
-//     user: "grl.alper@gmail.com",
-//     is_completed: false,
-//     content: content,
-//     attachment_type: "none",
-//     attachment_url: "",
-//   });
-//   console.log("Document written with ID: ", docRef.id);
-// }
-
-export default function AddTodo({ addNewTodo }: { addNewTodo: any }) {
+export default function AddTodo({
+  addNewTodo,
+  user,
+}: {
+  addNewTodo: any;
+  user: string;
+}) {
   const [addState, setAddState] = useState<AddState>("none");
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [itemContent, setItemContent] = useState("");
   const inputRef = useRef(null);
+  const [done, formAction] = useFormState(async () => {
+    await addNewTodo(itemContent, tags, user);
+    return true;
+  }, false);
 
   useEffect(() => {
     if (addState === "add") {
       (inputRef.current as any)?.focus();
     }
   }, [addState]);
+
+  useEffect(() => {
+    if (done) {
+      setAddState("none");
+    }
+  }, [done]);
 
   return (
     <>
@@ -60,11 +54,7 @@ export default function AddTodo({ addNewTodo }: { addNewTodo: any }) {
                 />
               </div>
             </div>
-            <form
-              action={() => {
-                addNewTodo(itemContent);
-              }}
-            >
+            <form action={formAction}>
               {" "}
               <button
                 className="ml-4 px-5 py-2 font-sans flex gap-2 bg-green-600 text-white rounded-md cursor-pointer hover:bg-green-700"
@@ -85,12 +75,48 @@ export default function AddTodo({ addNewTodo }: { addNewTodo: any }) {
               İptal
             </button>
           </div>
-          <div className="mt-4 pt-4 text-xs text-slate-400">Ek:</div>
+          <div className="mt-4 pt-4  flex justify-between">
+            <div className="text-xs text-slate-400">Ek:</div>
+            <div className="flex flex-col items-end">
+              <div className="flex mb-3">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => {
+                    setTagInput(e.target.value);
+                  }}
+                  placeholder="tag"
+                  className="font-normal text-sm px-2 py-2 rounded-lg"
+                />
+                <button
+                  className="ml-3 bg-slate-700 rounded-xl text-white text-sm py-2 px-3"
+                  onClick={() => {
+                    if (tagInput != "") {
+                      setTags([tagInput, ...tags]);
+                      setTagInput("");
+                    }
+                  }}
+                >
+                  Ekle
+                </button>
+              </div>
+              <div className="flex gap-3 font-normal">
+                {tags.map((el, index) => (
+                  <div
+                    key={index}
+                    className="bg-red-200 text-red-500 text-sm py-2 px-3 rounded-xl"
+                  >
+                    {el}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
       {addState === "none" && (
         <button
-          className="bg-sky-700 p-3 rounded-lg text-white mt-4"
+          className="bg-sky-700 py-2 px-5 rounded-lg text-white mt-4"
           onClick={() => {
             setAddState("add");
           }}
